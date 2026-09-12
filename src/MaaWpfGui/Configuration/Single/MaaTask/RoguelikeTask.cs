@@ -34,6 +34,11 @@ public class RoguelikeTask : BaseTask
     public RoguelikeMode Mode { get; set; } = RoguelikeMode.Exp;
 
     /// <summary>
+    /// Gets or sets 任务开始时检测到已有探索时的处理方式
+    /// </summary>
+    public RoguelikeExistingRunAction ExistingRunAction { get; set; } = RoguelikeExistingRunAction.Abandon;
+
+    /// <summary>
     /// Gets or sets 开局分队
     /// </summary>
     public string Squad { get; set; } = string.Empty;
@@ -210,6 +215,27 @@ public enum RoguelikeTheme
     /// 黑流树海
     /// </summary>
     BlackFlow,
+}
+
+/// <summary>
+/// 任务开始时检测到已有肉鸽探索的处理方式
+/// </summary>
+public enum RoguelikeExistingRunAction
+{
+    /// <summary>
+    /// 放弃已有探索并按当前配置重新开始
+    /// </summary>
+    Abandon = 0,
+
+    /// <summary>
+    /// 继续已有探索
+    /// </summary>
+    Continue = 1,
+
+    /// <summary>
+    /// 保留已有探索并停止当前肉鸽任务
+    /// </summary>
+    Stop = 2,
 }
 
 public enum RoguelikeMode
