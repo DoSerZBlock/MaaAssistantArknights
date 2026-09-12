@@ -1,5 +1,6 @@
 #include "RoguelikeTask.h"
 
+#include <algorithm>
 #include <utility>
 
 #include "Common/AsstBattleDef.h"
@@ -55,6 +56,16 @@
 #include "Task/Roguelike/BlackFlow/BlackFlowTaskPort.h"
 
 #include "Utils/Logger.hpp"
+
+namespace
+{
+enum class ExistingRunAction
+{
+    Abandon = 0,
+    Continue = 1,
+    Stop = 2,
+};
+}
 
 asst::RoguelikeTask::RoguelikeTask(const AsstCallback& callback, Assistant* inst) :
     InterfaceTask(callback, inst, TaskType),
@@ -221,8 +232,56 @@ bool asst::RoguelikeTask::set_params(const json::value& params)
 
     const auto& theme = m_config_ptr->get_theme();
     const auto& mode = m_config_ptr->get_mode();
+    const auto existing_run_action =
+        static_cast<ExistingRunAction>(params.get("existing_run_action", static_cast<int>(ExistingRunAction::Abandon)));
+    if (existing_run_action != ExistingRunAction::Abandon && existing_run_action != ExistingRunAction::Continue &&
+        existing_run_action != ExistingRunAction::Stop) {
+        Log.error(__FUNCTION__, "| Unknown existing_run_action", static_cast<int>(existing_run_action));
+        m_roguelike_task_ptr->set_tasks({ "Stop" });
+        return false;
+    }
 
-    m_roguelike_task_ptr->set_tasks({ theme + "@Roguelike@Begin" });
+    const std::string begin_task_name = theme + "@Roguelike@Begin";
+    m_roguelike_task_ptr->set_tasks({ begin_task_name });
+
+    // Keep the legacy behavior untouched unless the caller opts into a different policy.
+    // The detector inherits the exact theme-specific Abandon recognition but performs no click.
+    if (existing_run_action != ExistingRunAction::Abandon) {
+        const std::string abandon_task_name = theme + "@Roguelike@Abandon";
+        const std::string existing_run_task_name = theme + "@Roguelike@ExistingRun";
+        auto begin_task = Task.get(begin_task_name);
+        if (begin_task == nullptr) {
+            Log.error(__FUNCTION__, "| Roguelike begin task not found", begin_task_name);
+            return false;
+        }
+
+        auto begin_next = begin_task->next;
+        const auto abandon_it = std::find(begin_next.begin(), begin_next.end(), abandon_task_name);
+        if (abandon_it == begin_next.end()) {
+            Log.error(__FUNCTION__, "| Roguelike abandon task not found in begin route", abandon_task_name);
+            return false;
+        }
+        begin_next.insert(abandon_it, existing_run_task_name);
+        if (!m_roguelike_task_ptr->override_next(begin_task_name, std::move(begin_next))) {
+            return false;
+        }
+
+        std::vector<std::string> existing_run_next;
+        switch (existing_run_action) {
+        case ExistingRunAction::Continue:
+            existing_run_next.emplace_back(theme + "@Roguelike@Continue");
+            break;
+        case ExistingRunAction::Stop:
+            existing_run_next.emplace_back("RoguelikeControlTaskPlugin-Stop");
+            break;
+        case ExistingRunAction::Abandon:
+        default:
+            break;
+        }
+        if (!m_roguelike_task_ptr->override_next(existing_run_task_name, std::move(existing_run_next))) {
+            return false;
+        }
+    }
 
     if (mode == RoguelikeMode::Investment) {
         // 刷源石锭模式是否进入第二层
