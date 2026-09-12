@@ -34,6 +34,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static MaaWpfGui.Main.AsstProxy;
 using CultivationTarget = MaaWpfGui.Configuration.Single.MaaTask.RoguelikeBlackFlowCultivationTarget;
+using ExistingRunAction = MaaWpfGui.Configuration.Single.MaaTask.RoguelikeExistingRunAction;
 using Mode = MaaWpfGui.Configuration.Single.MaaTask.RoguelikeMode;
 using RoguelikeBoskySubNodeType = MaaWpfGui.Configuration.Single.MaaTask.RoguelikeBoskySubNodeType;
 using Theme = MaaWpfGui.Configuration.Single.MaaTask.RoguelikeTheme;
@@ -405,6 +406,14 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
         (Theme.BlackFlow, "RoguelikeThemeBlackFlow"));
 
     /// <summary>
+    /// Gets the available actions for an existing roguelike run detected at task startup.
+    /// </summary>
+    public LocalizedObservableList<ExistingRunAction> RoguelikeExistingRunActionList { get; } = new(
+        (ExistingRunAction.Abandon, "RoguelikeExistingRunActionAbandon"),
+        (ExistingRunAction.Continue, "RoguelikeExistingRunActionContinue"),
+        (ExistingRunAction.Stop, "RoguelikeExistingRunActionStop"));
+
+    /// <summary>
     /// Gets or sets the Roguelike theme.
     /// </summary>
     public Theme RoguelikeTheme
@@ -451,6 +460,15 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
             SetTaskConfig<RoguelikeTask>(t => t.Mode == value, t => t.Mode = value);
             UpdateRoguelikeSquadList();
         }
+    }
+
+    /// <summary>
+    /// Gets or sets how an existing run is handled when the task starts.
+    /// </summary>
+    public ExistingRunAction RoguelikeExistingRunAction
+    {
+        get => GetTaskConfig<RoguelikeTask>().ExistingRunAction;
+        set => SetTaskConfig<RoguelikeTask>(t => t.ExistingRunAction == value, t => t.ExistingRunAction = value);
     }
 
     /// <summary>
@@ -992,7 +1010,7 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
         "ending2_completed" => LocalizationHelper.GetString("BlackFlowOutcomeEnding2Completed"),
         "ending3_completed" => LocalizationHelper.GetString("BlackFlowOutcomeEnding3Completed"),
         "ending2_prerequisite_failed" => LocalizationHelper.GetString("BlackFlowOutcomeEnding2PrerequisiteFailed"),
-        "ending3_prerequisite_failed" => LocalizationHelper.GetString("BlackFlowOutcomeEnding3PrerequisiteFailed"),
+        "ending3_prerequisite_failed" => LocalizationHelper.GetString("BlackFlowOutcomeEnding3RelicMissing"),
         "baby_cultivation_unfinished" => LocalizationHelper.GetString("BlackFlowOutcomeBabyCultivationUnfinished"),
         "task_event_failed" => LocalizationHelper.GetString("BlackFlowOutcomeTaskEventFailed"),
         "perception_port_missing" => LocalizationHelper.GetString("BlackFlowOutcomePerceptionPortMissing"),
@@ -1007,7 +1025,7 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
         "state_machine_dead_end" => LocalizationHelper.GetString("BlackFlowOutcomeStateMachineDeadEnd"),
         "map_recovery_exhausted" => LocalizationHelper.GetString("BlackFlowOutcomeMapRecoveryExhausted"),
         "floor_recognition_failed" => LocalizationHelper.GetString("BlackFlowOutcomeFloorRecognitionFailed"),
-        "movement_inventory_observation_failed" => LocalizationHelper.GetString("BlackFlowOutcomeMovementInventoryFailed"),
+        "movement_inventory_observation_failed" => LocalizationHelper.GetString("BlackFlowOutcomeMovementFailed"),
         "movement_selection_failed" => LocalizationHelper.GetString("BlackFlowOutcomeMovementSelectionFailed"),
         "node_dispatch_failed" => LocalizationHelper.GetString("BlackFlowOutcomeNodeDispatchFailed"),
         "node_result_failed" => LocalizationHelper.GetString("BlackFlowOutcomeNodeResultFailed"),
@@ -1358,6 +1376,7 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
             var task = new AsstRoguelikeTask() {
                 Theme = roguelike.Theme,
                 Mode = roguelike.Mode,
+                ExistingRunAction = roguelike.ExistingRunAction,
                 Starts = roguelike.StartCount,
                 Difficulty = roguelike.Difficulty,
                 Squad = roguelike.Squad,
@@ -1451,6 +1470,7 @@ public class RoguelikeSettingsUserControlModel : TaskSettingsViewModel, Roguelik
     private void RefreshLocalization()
     {
         RoguelikeThemeList.RefreshLocalization();
+        RoguelikeExistingRunActionList.RefreshLocalization();
         RoguelikeFindPlaytimeTargetList.RefreshLocalization();
         RoguelikeBlackFlowCultivationTargetList.RefreshLocalization();
         UpdateRoguelikeDifficultyList();
