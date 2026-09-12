@@ -1,0 +1,26 @@
+{
+    "Phantom@Roguelike@ExistingRun": {
+        "baseTask": "Phantom@Roguelike@Abandon",
+        "action": "DoNothing"
+    },
+    "Mizuki@Roguelike@ExistingRun": {
+        "baseTask": "Mizuki@Roguelike@Abandon",
+        "action": "DoNothing"
+    },
+    "Sami@Roguelike@ExistingRun": {
+        "baseTask": "Sami@Roguelike@Abandon",
+        "action": "DoNothing"
+    },
+    "Sarkaz@Roguelike@ExistingRun": {
+        "baseTask": "Sarkaz@Roguelike@Abandon",
+        "action": "DoNothing"
+    },
+    "JieGarden@Roguelike@ExistingRun": {
+        "baseTask": "JieGarden@Roguelike@Abandon",
+        "action": "DoNothing"
+    },
+    "BlackFlow@Roguelike@ExistingRun": {
+        "baseTask": "BlackFlow@Roguelike@Abandon",
+        "action": "DoNothing"
+    }
+}
