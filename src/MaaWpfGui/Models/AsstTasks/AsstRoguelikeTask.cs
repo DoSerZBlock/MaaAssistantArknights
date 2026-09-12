@@ -50,6 +50,11 @@ public class AsstRoguelikeTask : AsstBaseTask
     public RoguelikeMode Mode { get; set; }
 
     /// <summary>
+    /// Gets or sets 任务开始时检测到已有探索时的处理方式
+    /// </summary>
+    public RoguelikeExistingRunAction ExistingRunAction { get; set; }
+
+    /// <summary>
     /// Gets or sets 刷投资的目标难度/其他模式的选择难度
     /// </summary>
     public int Difficulty { get; set; }
@@ -213,6 +218,7 @@ public class AsstRoguelikeTask : AsstBaseTask
             ["difficulty"] = Difficulty,
             ["starts_count"] = Starts,
             ["investment_enabled"] = InvestmentEnabled,
+            ["existing_run_action"] = (int)ExistingRunAction,
         };
 
         if (Theme == RoguelikeTheme.BlackFlow && Mode == RoguelikeMode.BlackFlowBabyAnimal)
