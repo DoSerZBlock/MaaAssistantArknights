@@ -32,6 +32,14 @@
                 ItemsSource="{Binding RoguelikeThemeList}"
                 SelectedValue="{Binding RoguelikeTheme}"
                 SelectedValuePath="Value" />
+            <hc:ComboBox
+                Margin="0,3"
+                hc:InfoElement.Title="{DynamicResource RoguelikeExistingRunAction}"
+                DisplayMemberPath="Display"
+                IsHitTestVisible="{Binding Idle, Source={x:Static ui_vms:TaskQueueViewModel.TaskSettingDataContext}}"
+                ItemsSource="{Binding RoguelikeExistingRunActionList}"
+                SelectedValue="{Binding RoguelikeExistingRunAction}"
+                SelectedValuePath="Value" />
             <StackPanel Margin="0,3">
                 <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
                     <controls:TextBlock Margin="8,0,0,0" Text="{DynamicResource RoguelikeDifficulty}" />
