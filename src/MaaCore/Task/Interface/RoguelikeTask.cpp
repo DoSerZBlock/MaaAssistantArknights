@@ -242,13 +242,17 @@ bool asst::RoguelikeTask::set_params(const json::value& params)
     }
 
     const std::string begin_task_name = theme + "@Roguelike@Begin";
+    const std::string existing_run_task_name = theme + "@Roguelike@ExistingRun";
     m_roguelike_task_ptr->set_tasks({ begin_task_name });
+
+    // set_params may be called repeatedly on the same ProcessTask, so clear policy-specific routes first.
+    m_roguelike_task_ptr->remove_override_next(begin_task_name);
+    m_roguelike_task_ptr->remove_override_next(existing_run_task_name);
 
     // Keep the legacy behavior untouched unless the caller opts into a different policy.
     // The detector inherits the exact theme-specific Abandon recognition but performs no click.
     if (existing_run_action != ExistingRunAction::Abandon) {
         const std::string abandon_task_name = theme + "@Roguelike@Abandon";
-        const std::string existing_run_task_name = theme + "@Roguelike@ExistingRun";
         auto begin_task = Task.get(begin_task_name);
         if (begin_task == nullptr) {
             Log.error(__FUNCTION__, "| Roguelike begin task not found", begin_task_name);
