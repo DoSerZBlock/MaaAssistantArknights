@@ -242,11 +242,16 @@ bool asst::RoguelikeTask::set_params(const json::value& params)
     }
 
     const std::string begin_task_name = theme + "@Roguelike@Begin";
+    const std::string initial_begin_task_name = theme + "@Roguelike@InitialBegin";
     const std::string existing_run_task_name = theme + "@Roguelike@ExistingRun";
-    m_roguelike_task_ptr->set_tasks({ begin_task_name });
+
+    // Keep the original Begin graph untouched. InitialBegin is only used as the ProcessTask root,
+    // so this policy is evaluated exactly once when this Roguelike task starts.
+    m_roguelike_task_ptr->set_tasks(
+        { existing_run_action == ExistingRunAction::Abandon ? begin_task_name : initial_begin_task_name });
 
     // set_params may be called repeatedly on the same ProcessTask, so clear policy-specific routes first.
-    m_roguelike_task_ptr->remove_override_next(begin_task_name);
+    m_roguelike_task_ptr->remove_override_next(initial_begin_task_name);
     m_roguelike_task_ptr->remove_override_next(existing_run_task_name);
 
     // Keep the legacy behavior untouched unless the caller opts into a different policy.
@@ -266,7 +271,7 @@ bool asst::RoguelikeTask::set_params(const json::value& params)
             return false;
         }
         begin_next.insert(abandon_it, existing_run_task_name);
-        if (!m_roguelike_task_ptr->override_next(begin_task_name, std::move(begin_next))) {
+        if (!m_roguelike_task_ptr->override_next(initial_begin_task_name, std::move(begin_next))) {
             return false;
         }
 
